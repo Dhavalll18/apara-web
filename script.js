@@ -1,10 +1,6 @@
-/* ============================================
-   APARA - Complete & Optimized JavaScript - FIXED
-   ============================================ */
-
 'use strict';
 
-// Global variables and configuration
+// Configuration
 const APARA_CONFIG = {
     whatsapp: {
         phone: '919104956647',
@@ -33,39 +29,24 @@ let ticking = false;
 
 // DOM elements cache
 const DOM = {
-    // Navigation
     mobileMenuToggle: null,
     navLinks: null,
     navLinksItems: null,
     navbar: null,
-    
-    // Testimonials
     testimonials: null,
     prevBtn: null,
     nextBtn: null,
-    
-    // FAQ
     faqCards: null,
-    
-    // Counters
     counters: null,
-    
-    // Contact buttons - EXPANDED
     contactButtons: null,
-    allContactButtons: null,
-    
-    // Sections for scroll detection
     sections: null
 };
 
-// Document Ready Function
+// Document Ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 APARA Website Initializing...');
     
-    // Cache DOM elements
     cacheDOMElements();
-    
-    // Initialize all components
     initMobileMenu();
     initSmoothScroll();
     initTestimonialSlider();
@@ -80,59 +61,36 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ APARA Website Initialized Successfully!');
 });
 
-// Cache DOM Elements for Performance - UPDATED
+// Cache DOM Elements
 function cacheDOMElements() {
     DOM.mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     DOM.navLinks = document.querySelector('.apara-nav-links');
     DOM.navLinksItems = document.querySelectorAll('.nav-link');
     DOM.navbar = document.querySelector('.apara-navbar');
-    
     DOM.testimonials = document.querySelectorAll('.testimonial-card');
     DOM.prevBtn = document.getElementById('prevBtn');
     DOM.nextBtn = document.getElementById('nextBtn');
-    
     DOM.faqCards = document.querySelectorAll('.faq-card');
     DOM.counters = document.querySelectorAll('[data-count]');
-    
-    // EXPANDED CONTACT BUTTONS CACHING
-    DOM.contactButtons = document.querySelectorAll('[data-contact="whatsapp"]');
-    DOM.allContactButtons = document.querySelectorAll('.apara-contact-btn, .request-btn, .cta-button, .apara-bottle-btn, [data-contact="whatsapp"]');
-    
+    DOM.contactButtons = document.querySelectorAll('.apara-contact-btn, .request-btn, .cta-button, .apara-bottle-btn, [data-contact="whatsapp"]');
     DOM.sections = document.querySelectorAll('section[id], main[id]');
-    
-    console.log('DOM Elements Cached:', {
-        contactButtons: DOM.contactButtons.length,
-        allContactButtons: DOM.allContactButtons.length,
-        faqCards: DOM.faqCards.length,
-        testimonials: DOM.testimonials.length
-    });
 }
 
 // ============================================
-// MOBILE NAVIGATION - Enhanced
+// MOBILE NAVIGATION
 // ============================================
 
 function initMobileMenu() {
-    if (!DOM.mobileMenuToggle || !DOM.navLinks) {
-        console.warn('Mobile menu elements not found');
-        return;
-    }
+    if (!DOM.mobileMenuToggle || !DOM.navLinks) return;
     
-    // Toggle mobile menu
     DOM.mobileMenuToggle.addEventListener('click', toggleMobileMenu);
     
-    // Close mobile menu when clicking on a link
     DOM.navLinksItems.forEach(link => {
         link.addEventListener('click', closeMobileMenu);
     });
     
-    // Close mobile menu on window resize
     window.addEventListener('resize', debounce(handleWindowResize, 250));
-    
-    // Close mobile menu on escape key
     document.addEventListener('keydown', handleEscapeKey);
-    
-    // Close mobile menu when clicking outside
     document.addEventListener('click', handleOutsideClick);
     
     console.log('✅ Mobile Menu Initialized');
@@ -145,28 +103,22 @@ function toggleMobileMenu(e) {
     const isExpanded = DOM.mobileMenuToggle.getAttribute('aria-expanded') === 'true';
     const newState = !isExpanded;
     
-    // Update ARIA state
     DOM.mobileMenuToggle.setAttribute('aria-expanded', newState);
-    
-    // Toggle menu visibility
     DOM.navLinks.classList.toggle('mobile-menu-open', newState);
     
-    // Prevent body scroll when menu is open
-    document.body.style.overflow = newState ? 'hidden' : '';
-    
-    // Focus management
     if (newState) {
-        // Focus first menu item when opened
+        document.body.classList.add('menu-open');
+        document.body.style.overflow = 'hidden';
         const firstLink = DOM.navLinks.querySelector('.nav-link');
         if (firstLink) {
             setTimeout(() => firstLink.focus(), 100);
         }
     } else {
-        // Return focus to toggle button when closed
+        document.body.classList.remove('menu-open');
+        document.body.style.overflow = '';
         DOM.mobileMenuToggle.focus();
     }
     
-    // Add/remove backdrop
     toggleBackdrop(newState);
 }
 
@@ -176,6 +128,7 @@ function closeMobileMenu() {
         if (DOM.mobileMenuToggle) {
             DOM.mobileMenuToggle.setAttribute('aria-expanded', 'false');
         }
+        document.body.classList.remove('menu-open');
         document.body.style.overflow = '';
         toggleBackdrop(false);
     }
@@ -224,7 +177,6 @@ function toggleBackdrop(show) {
         `;
         document.body.appendChild(backdrop);
         
-        // Trigger animation
         requestAnimationFrame(() => {
             backdrop.style.opacity = '1';
         });
@@ -241,90 +193,60 @@ function toggleBackdrop(show) {
 }
 
 // ============================================
-// SIMPLE CLEAN WHATSAPP - SINGLE TAB GUARANTEED
+// WHATSAPP CONTACT
 // ============================================
 
-// WhatsApp function - this will completely replace all existing WhatsApp code
 function initContactButtons() {
-    console.log('Initializing simple clean WhatsApp...');
+    console.log('Initializing WhatsApp contact...');
     
-    // Find all contact buttons - using a broad selector to catch everything
-    const contactButtons = document.querySelectorAll('.apara-contact-btn, .request-btn, .cta-button, .apara-bottle-btn, [data-contact="whatsapp"]');
-    
-    console.log(`Found ${contactButtons.length} contact buttons`);
-    
-    contactButtons.forEach((button, index) => {
-        console.log(`Setting up button ${index}: ${button.className}`);
-        
-        // Clear any existing handlers by cloning
+    DOM.contactButtons.forEach((button, index) => {
         const newButton = button.cloneNode(true);
         if (button.parentNode) {
             button.parentNode.replaceChild(newButton, button);
         }
         
-        // Add our single clean handler
         newButton.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            // Prevent multiple clicks
-            if (this.getAttribute('data-clicked') === 'true') {
-                console.log('Button already clicked, ignoring');
-                return;
-            }
+            if (this.getAttribute('data-clicked') === 'true') return;
             
-            // Mark as clicked
             this.setAttribute('data-clicked', 'true');
-            
-            // Change text
             const originalText = this.textContent;
-            this.textContent = 'Opening WhatsApp...';
-            
-            // Disable button
             this.disabled = true;
             
-            // Get message type
-            let message = 'Hi APARA team! I want to know more about your eco-friendly biodegradable bottles.';
+            let message = APARA_CONFIG.whatsapp.messages.general;
             
             const productSku = this.getAttribute('data-product-sku');
             if (productSku && productSku.includes('300')) {
-                message = 'Hi APARA team! I want to get a quote for APARA 300ml bottles (Pack of 36).';
+                message = APARA_CONFIG.whatsapp.messages.product300;
             } else if (productSku && productSku.includes('500')) {
-                message = 'Hi APARA team! I want to get a quote for APARA 500ml bottles (Pack of 24).';
+                message = APARA_CONFIG.whatsapp.messages.product500;
             } else if (productSku && productSku.includes('750')) {
-                message = 'Hi APARA team! I want to get a quote for APARA 750ml bottles (Pack of 18).';
+                message = APARA_CONFIG.whatsapp.messages.product750;
             }
             
             const service = this.getAttribute('data-service');
             if (service === 'custom-labels') {
-                message = 'Hi APARA team! I want to know more about custom label solutions for my business.';
+                message = APARA_CONFIG.whatsapp.messages.customLabels;
             }
             
             const action = this.getAttribute('data-action');
             if (action === 'get-started') {
-                message = 'Hi APARA team! I want to get started with APARA eco-friendly bottles for my business.';
+                message = APARA_CONFIG.whatsapp.messages.getStarted;
             }
             
-            console.log('Opening WhatsApp with message:', message);
+            const whatsappURL = `https://wa.me/${APARA_CONFIG.whatsapp.phone}?text=${encodeURIComponent(message)}`;
             
-            // Create WhatsApp URL
-            const phone = '919104956647';
-            const whatsappURL = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-            
-            // Open WhatsApp after a small delay for visual feedback
             setTimeout(() => {
-                // Check if mobile (direct redirect) or desktop (new window)
                 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 
                 if (isMobile) {
-                    console.log('Mobile device detected, using direct redirect');
                     window.location.href = whatsappURL;
                 } else {
-                    console.log('Desktop detected, using window.open');
                     window.open(whatsappURL, '_blank');
                 }
                 
-                // Reset button after delay only on desktop
                 if (!isMobile) {
                     setTimeout(() => {
                         this.textContent = originalText;
@@ -336,28 +258,14 @@ function initContactButtons() {
         });
     });
     
-    console.log('✅ Clean WhatsApp initialized');
+    console.log('✅ WhatsApp contact initialized');
 }
 
-// Make the global function simpler
+// Global WhatsApp function
 window.openWhatsApp = function(messageKey = 'general') {
-    console.log('Global openWhatsApp called with:', messageKey);
+    const message = APARA_CONFIG.whatsapp.messages[messageKey] || APARA_CONFIG.whatsapp.messages.general;
+    const whatsappURL = `https://wa.me/${APARA_CONFIG.whatsapp.phone}?text=${encodeURIComponent(message)}`;
     
-    // Basic messaging without complexity
-    const messages = {
-        general: 'Hi APARA team! I want to know more about your eco-friendly biodegradable bottles.',
-        product300: 'Hi APARA team! I want to get a quote for APARA 300ml bottles (Pack of 36).',
-        product500: 'Hi APARA team! I want to get a quote for APARA 500ml bottles (Pack of 24).',
-        product750: 'Hi APARA team! I want to get a quote for APARA 750ml bottles (Pack of 18).',
-        customLabels: 'Hi APARA team! I want to know more about custom label solutions for my business.',
-        getStarted: 'Hi APARA team! I want to get started with APARA eco-friendly bottles for my business.'
-    };
-    
-    const message = messages[messageKey] || messages.general;
-    const phone = '919104956647';
-    const whatsappURL = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-    
-    // Simple open - no complex logic
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     if (isMobile) {
         window.location.href = whatsappURL;
@@ -366,22 +274,8 @@ window.openWhatsApp = function(messageKey = 'general') {
     }
 };
 
-// Remove any backup initializations - this should be the only WhatsApp code
-// Adding this specifically to prevent conflicts
-window.addEventListener('load', function() {
-    // Check if we have contact buttons without handlers
-    setTimeout(() => {
-        document.querySelectorAll('.apara-contact-btn').forEach(btn => {
-            if (!btn.getAttribute('data-clicked') && !btn.onclick) {
-                console.log('Found unintialized button, re-initializing contact buttons');
-                initContactButtons();
-            }
-        });
-    }, 2000);
-});
-
 // ============================================
-// SMOOTH SCROLLING - Enhanced
+// SMOOTH SCROLLING
 // ============================================
 
 function initSmoothScroll() {
@@ -408,21 +302,17 @@ function handleSmoothScroll(e) {
     if (targetSection) {
         e.preventDefault();
         
-        // Close mobile menu if open
         closeMobileMenu();
         
         const navHeight = DOM.navbar ? DOM.navbar.offsetHeight : 78;
         const targetPosition = targetSection.offsetTop - navHeight - 20;
         
-        // Ultra fast smooth scroll
         smoothScrollTo(targetPosition, 400);
         
-        // Update URL without triggering scroll
         if (history.pushState) {
             history.pushState(null, null, href);
         }
         
-        // Focus management for accessibility
         setTimeout(() => {
             targetSection.setAttribute('tabindex', '-1');
             targetSection.focus();
@@ -468,19 +358,18 @@ function scrollToTop() {
     }, 500);
 }
 
+// Global scroll to top function
+window.scrollToTop = scrollToTop;
+
 // ============================================
-// NAVIGATION SCROLL BEHAVIOR - Enhanced
+// NAVIGATION SCROLL BEHAVIOR
 // ============================================
 
 function initNavOnScroll() {
-    if (!DOM.navbar || !DOM.sections.length) {
-        console.warn('Navigation scroll elements not found');
-        return;
-    }
+    if (!DOM.navbar || !DOM.sections.length) return;
     
     const impactSection = document.getElementById('environmental-impact');
     
-    // Throttled scroll handler
     window.addEventListener('scroll', () => {
         if (!ticking) {
             requestAnimationFrame(() => {
@@ -491,7 +380,6 @@ function initNavOnScroll() {
         }
     });
     
-    // Initial check
     handleScroll(impactSection);
     
     console.log('✅ Navigation Scroll Behavior Initialized');
@@ -502,13 +390,8 @@ function handleScroll(impactSection) {
     
     const currentScrollY = window.pageYOffset;
     
-    // Update navbar style
     updateNavbarStyle(impactSection, currentScrollY);
-    
-    // Update active nav link
     updateActiveNavLink(currentScrollY);
-    
-    // Add scroll direction class
     updateScrollDirection(currentScrollY);
     
     lastScrollY = currentScrollY;
@@ -561,31 +444,25 @@ function updateScrollDirection(currentScrollY) {
 }
 
 // ============================================
-// FAQ ACCORDION - FIXED IMPLEMENTATION
+// FAQ ACCORDION
 // ============================================
 
 function initFaqAccordion() {
     console.log('Initializing FAQ Accordion...');
     
-    // Use a more reliable method
     setTimeout(() => {
         const faqButtons = document.querySelectorAll('.faq-q');
-        console.log('Found FAQ buttons:', faqButtons.length);
         
         faqButtons.forEach((button, index) => {
-            // Remove any existing handlers
             button.removeEventListener('click', button._faqHandler);
             
-            // Create new handler
             button._faqHandler = function(e) {
                 e.preventDefault();
-                console.log('FAQ clicked:', index);
                 
                 const card = this.closest('.faq-card');
                 const arrow = this.querySelector('.faq-arrow');
                 const isOpen = card.classList.contains('open');
                 
-                // Close all other FAQs
                 document.querySelectorAll('.faq-card').forEach(otherCard => {
                     if (otherCard !== card && otherCard.classList.contains('open')) {
                         otherCard.classList.remove('open');
@@ -597,7 +474,6 @@ function initFaqAccordion() {
                     }
                 });
                 
-                // Toggle current FAQ
                 if (isOpen) {
                     card.classList.remove('open');
                     if (arrow) {
@@ -613,10 +489,8 @@ function initFaqAccordion() {
                 }
             };
             
-            // Add event listener
             button.addEventListener('click', button._faqHandler);
             
-            // Add hover effects
             button.addEventListener('mouseenter', function() {
                 if (!this.closest('.faq-card').classList.contains('open')) {
                     this.style.backgroundColor = 'rgba(0, 175, 57, 0.05)';
@@ -635,33 +509,23 @@ function initFaqAccordion() {
 }
 
 // ============================================
-// TESTIMONIAL SLIDER - Enhanced
+// TESTIMONIAL SLIDER
 // ============================================
 
 function initTestimonialSlider() {
-    if (!DOM.testimonials.length || !DOM.prevBtn || !DOM.nextBtn) {
-        console.warn('Testimonial elements not found');
-        return;
-    }
+    if (!DOM.testimonials.length || !DOM.prevBtn || !DOM.nextBtn) return;
     
-    // Show first testimonial
     updateTestimonialDisplay();
     
-    // Bind navigation buttons
     DOM.prevBtn.addEventListener('click', showPreviousTestimonial);
     DOM.nextBtn.addEventListener('click', showNextTestimonial);
     
-    // Keyboard navigation
     DOM.prevBtn.addEventListener('keydown', handleTestimonialKeydown);
     DOM.nextBtn.addEventListener('keydown', handleTestimonialKeydown);
     
-    // Touch/swipe support for mobile
     initTestimonialTouch();
-    
-    // Start autoplay
     startTestimonialAutoplay();
     
-    // Pause autoplay on hover/focus
     const testimonialContainer = document.querySelector('.testimonial-cards-arrows');
     if (testimonialContainer) {
         testimonialContainer.addEventListener('mouseenter', stopTestimonialAutoplay);
@@ -686,20 +550,17 @@ function showPreviousTestimonial() {
 }
 
 function updateTestimonialDisplay() {
-    // Hide all testimonials
     DOM.testimonials.forEach((testimonial, index) => {
         testimonial.classList.remove('active');
         testimonial.setAttribute('aria-hidden', 'true');
         testimonial.removeAttribute('tabindex');
     });
     
-    // Show current testimonial
     const activeTestimonial = DOM.testimonials[currentTestimonial];
     activeTestimonial.classList.add('active');
     activeTestimonial.setAttribute('aria-hidden', 'false');
     activeTestimonial.setAttribute('tabindex', '0');
     
-    // Update button states
     updateTestimonialButtons();
 }
 
@@ -707,7 +568,6 @@ function updateTestimonialButtons() {
     DOM.prevBtn.disabled = false;
     DOM.nextBtn.disabled = false;
     
-    // Update ARIA labels
     DOM.prevBtn.setAttribute('aria-label', `Previous testimonial (${currentTestimonial + 1} of ${DOM.testimonials.length})`);
     DOM.nextBtn.setAttribute('aria-label', `Next testimonial (${currentTestimonial + 1} of ${DOM.testimonials.length})`);
 }
@@ -751,7 +611,6 @@ function initTestimonialTouch() {
         const diffX = startX - endX;
         const diffY = startY - endY;
         
-        // Check if horizontal swipe is more significant than vertical
         if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > threshold) {
             if (diffX > 0) {
                 showNextTestimonial();
@@ -778,16 +637,12 @@ function stopTestimonialAutoplay() {
 }
 
 // ============================================
-// COUNTER ANIMATION - Enhanced
+// COUNTER ANIMATION
 // ============================================
 
 function initCounterAnimation() {
-    if (!DOM.counters.length) {
-        console.warn('Counter elements not found');
-        return;
-    }
+    if (!DOM.counters.length) return;
     
-    // Create Intersection Observer for performance
     const options = {
         threshold: 0.5,
         rootMargin: '0px'
@@ -803,7 +658,6 @@ function initCounterAnimation() {
         });
     }, options);
     
-    // Observe all counters
     DOM.counters.forEach(counter => {
         observer.observe(counter);
     });
@@ -825,7 +679,6 @@ function animateCounter(counter) {
         const elapsedTime = currentTime - startTime;
         
         if (elapsedTime >= duration) {
-            // Final value
             let finalText = target.toLocaleString();
             if (hasPlus) finalText += '+';
             if (hasPercent) finalText += '%';
@@ -833,7 +686,6 @@ function animateCounter(counter) {
             return;
         }
         
-        // Eased progress
         const progress = easeOutQuart(elapsedTime / duration);
         const currentCount = Math.floor(progress * target);
         
@@ -854,7 +706,7 @@ function easeOutQuart(t) {
 }
 
 // ============================================
-// SCROLL ANIMATIONS - Enhanced
+// SCROLL ANIMATIONS
 // ============================================
 
 function initScrollAnimations() {
@@ -872,7 +724,6 @@ function initScrollAnimations() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
             if (entry.isIntersecting && !entry.target.hasAttribute('data-scroll-animated')) {
-                // Stagger animation for multiple elements
                 setTimeout(() => {
                     entry.target.style.opacity = '0';
                     entry.target.style.transform = 'translateY(30px)';
@@ -899,14 +750,12 @@ function initScrollAnimations() {
 }
 
 // ============================================
-// KEYBOARD NAVIGATION - Enhanced
+// KEYBOARD NAVIGATION
 // ============================================
 
 function initKeyboardNavigation() {
-    // Global keyboard shortcuts
     document.addEventListener('keydown', handleGlobalKeydown);
     
-    // Focus management for interactive elements
     const interactiveElements = document.querySelectorAll(
         'button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
@@ -920,13 +769,11 @@ function initKeyboardNavigation() {
 }
 
 function handleGlobalKeydown(e) {
-    // Home key - scroll to top
     if (e.key === 'Home' && e.ctrlKey) {
         e.preventDefault();
         scrollToTop();
     }
     
-    // End key - scroll to bottom
     if (e.key === 'End' && e.ctrlKey) {
         e.preventDefault();
         window.scrollTo({
@@ -935,7 +782,6 @@ function handleGlobalKeydown(e) {
         });
     }
     
-    // ESC key - close any open modals/menus
     if (e.key === 'Escape') {
         closeMobileMenu();
         stopTestimonialAutoplay();
@@ -955,16 +801,9 @@ function handleElementBlur(e) {
 // ============================================
 
 function initPerformanceOptimizations() {
-    // Preload critical images
     preloadCriticalImages();
-    
-    // Lazy load non-critical images
     initLazyLoading();
-    
-    // Optimize video loading
     optimizeVideoLoading();
-    
-    // Add performance monitoring
     monitorPerformance();
     
     console.log('✅ Performance Optimizations Initialized');
@@ -1004,7 +843,6 @@ function initLazyLoading() {
 function optimizeVideoLoading() {
     const video = document.querySelector('.hero-bg-video');
     if (video) {
-        // Pause video when not in viewport
         const videoObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1022,7 +860,6 @@ function optimizeVideoLoading() {
 }
 
 function monitorPerformance() {
-    // Simple performance logging
     window.addEventListener('load', () => {
         setTimeout(() => {
             const perfData = performance.getEntriesByType('navigation')[0];
@@ -1041,7 +878,6 @@ function monitorPerformance() {
 // UTILITY FUNCTIONS
 // ============================================
 
-// Debounce function for performance
 function debounce(func, wait, immediate) {
     let timeout;
     return function executedFunction(...args) {
@@ -1056,7 +892,6 @@ function debounce(func, wait, immediate) {
     };
 }
 
-// Screen reader announcements
 function announceToScreenReader(message) {
     const announcement = document.createElement('div');
     announcement.setAttribute('aria-live', 'polite');
@@ -1080,11 +915,9 @@ function announceToScreenReader(message) {
     }, 1000);
 }
 
-// Event tracking (placeholder for analytics)
 function trackEvent(eventName, eventData) {
     console.log('Event Tracked:', eventName, eventData);
     
-    // Integration with Google Analytics, Facebook Pixel, etc.
     if (typeof gtag !== 'undefined') {
         gtag('event', eventName, eventData);
     }
@@ -1105,7 +938,6 @@ window.addEventListener('error', (e) => {
     });
 });
 
-// Handle unhandled promise rejections
 window.addEventListener('unhandledrejection', (e) => {
     console.error('Unhandled Promise Rejection:', e.reason);
     trackEvent('promise_rejection', {
@@ -1113,32 +945,24 @@ window.addEventListener('unhandledrejection', (e) => {
     });
 });
 
-// ============================================
-// ENHANCED BACK TO TOP FUNCTIONALITY
-// ============================================
-
+// Back to top enhancement
 function initBackToTop() {
     const backToTopBtn = document.querySelector('.back-to-top');
     
     if (backToTopBtn) {
-        // Remove existing onclick
         backToTopBtn.removeAttribute('onclick');
         
-        // Add enhanced click handler
         backToTopBtn.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Visual feedback
             this.style.transform = 'scale(0.9)';
             setTimeout(() => {
                 this.style.transform = '';
             }, 150);
             
-            // Ultra fast scroll to top
             scrollToTop();
         });
         
-        // Show/hide on scroll
         window.addEventListener('scroll', function() {
             if (window.pageYOffset > 300) {
                 backToTopBtn.style.opacity = '1';
@@ -1153,105 +977,24 @@ function initBackToTop() {
     }
 }
 
-// Initialize back to top
 document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initBackToTop, 500);
 });
 
-// ============================================
-// BACKWARDS COMPATIBILITY & LEGACY SUPPORT
-// ============================================
-
-// Global functions for backwards compatibility
-window.openWhatsApp = function(messageKey) {
-    openWhatsApp(messageKey);
-};
-
-window.scrollToTop = scrollToTop;
-
-// Legacy FAQ function
-window.toggleFaq = function(element) {
-    console.log('Legacy toggleFaq called');
-    const card = element.closest ? element.closest('.faq-card') : element.parentElement.closest('.faq-card');
-    if (card) {
-        card.classList.toggle('open');
-        const arrow = card.querySelector('.faq-arrow');
-        if (arrow) {
-            const isOpen = card.classList.contains('open');
-            arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
-            arrow.style.color = isOpen ? '#00AF39' : '#283B31';
-        }
-    }
-};
-
-// ============================================
-// FINAL INITIALIZATION
-// ============================================
-
-// Run on page load (backup)
+// Backup initialization
 window.addEventListener('load', function() {
-    console.log('Window loaded, running backup initialization...');
-    
-    // Backup WhatsApp initialization
     setTimeout(() => {
-        if (!DOM.allContactButtons || DOM.allContactButtons.length === 0) {
-            console.log('Running backup contact button initialization...');
+        if (!DOM.contactButtons || DOM.contactButtons.length === 0) {
             const allButtons = document.querySelectorAll('.apara-contact-btn, .request-btn, .cta-button, .apara-bottle-btn');
             allButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
-                    console.log('Backup WhatsApp handler triggered');
-                    const url = 'https://wa.me/919104956647?text=' + encodeURIComponent('Hi APARA team! I want to know more about your eco-friendly bottles.');
+                    const url = `https://wa.me/${APARA_CONFIG.whatsapp.phone}?text=${encodeURIComponent(APARA_CONFIG.whatsapp.messages.general)}`;
                     window.open(url, '_blank');
                 });
             });
-            console.log('Backup contact buttons initialized:', allButtons.length);
         }
     }, 2000);
 });
-
-// ============================================
-// FAVICON DARK/LIGHT MODE SWITCHER
-// ============================================
-
-function initFaviconSwitcher() {
-    console.log('Initializing favicon dark/light mode switcher');
-    
-    // Get favicon elements
-    const faviconLight = document.getElementById('favicon-light');
-    const faviconDark = document.getElementById('favicon-dark');
-    
-    if (!faviconLight || !faviconDark) {
-        console.warn('Favicon elements not found');
-        return;
-    }
-    
-    // Function to set appropriate favicon based on color scheme
-    function setFavicon() {
-        // Check if user prefers dark mode
-        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        console.log('User prefers dark mode:', prefersDarkMode);
-        
-        // Set visibility based on preference
-        faviconLight.rel = prefersDarkMode ? '' : 'icon';
-        faviconDark.rel = prefersDarkMode ? 'icon' : '';
-    }
-    
-    // Set favicon on page load
-    setFavicon();
-    
-    // Listen for changes to color scheme preference
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setFavicon);
-    
-    console.log('✅ Favicon switcher initialized');
-}
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', initFaviconSwitcher);
-
-// ============================================
-// INITIALIZATION COMPLETE
-// ============================================
 
 console.log('🎉 APARA JavaScript Fully Loaded and Ready!');
